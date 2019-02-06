@@ -28,16 +28,16 @@ import com.theta360.pluginlibrary.receiver.KeyReceiver;
 import com.theta360.pluginlibrary.values.LedColor;
 import com.theta360.pluginlibrary.values.LedTarget;
 
+import org.jetbrains.annotations.NotNull;
 import org.webrtc.EglBase;
 import org.webrtc.MediaStream;
 import org.webrtc.VideoCapturer;
-
-import java.io.IOException;
 
 import jp.shiguredo.sora.sdk.channel.SoraMediaChannel;
 import jp.shiguredo.sora.sdk.channel.data.ChannelAttendeesCount;
 import jp.shiguredo.sora.sdk.channel.option.SoraMediaOption;
 import jp.shiguredo.sora.sdk.channel.option.SoraVideoOption;
+import jp.shiguredo.sora.sdk.channel.signaling.message.NotificationMessage;
 import jp.shiguredo.sora.sdk.channel.signaling.message.PushMessage;
 import jp.shiguredo.sora.sdk.error.SoraErrorReason;
 import jp.shiguredo.sora.sdk.util.SoraLogger;
@@ -99,6 +99,13 @@ public class MainActivity extends PluginActivity {
                 notificationLed3Show(LedColor.CYAN);
             });
             startCapturer();
+        }
+
+        @Override
+        public void onNotificationMessage(@NotNull SoraMediaChannel soraMediaChannel,
+                                          @NotNull NotificationMessage notificationMessage) {
+            Log.d("MyPlugin", "onNotificationMessage");
+            /* do nothing */
         }
 
     };
@@ -236,31 +243,6 @@ public class MainActivity extends PluginActivity {
             public void onKeyLongPress(int keyCode, KeyEvent event) {
             }
         });
-        startConfigServer();
-    }
-
-    private ConfigServer configServer;
-
-    private void startConfigServer() {
-        Log.d("MyPlugin", "startConfigServer");
-        if (configServer != null) {
-            return;
-        }
-
-       configServer = new ConfigServer();
-        try {
-            configServer.start();
-        } catch (IOException e) {
-            Log.w("MyPlugin", "failed to start config server");
-            e.printStackTrace();
-        }
-    }
-
-    private void stopConfigServer() {
-        if (configServer != null) {
-            configServer.stop();
-            configServer = null;
-        }
     }
 
     private void startCapturer() {
@@ -321,7 +303,6 @@ public class MainActivity extends PluginActivity {
         unlockCamera();
         egl.release();
         soraThread.quit();
-        stopConfigServer();
         super.onDestroy();
     }
 }
