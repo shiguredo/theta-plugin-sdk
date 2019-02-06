@@ -10,6 +10,15 @@ android {
         versionCode 4
         versionName "1.0.2"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
+        // アプリで参照する設定を BuildConfig に書き込む。
+        // gradle.properties に endpoint/channel 設定がある場合は上書きする
+        ext.signaling_endpoint = "wss://sora.example.com/signaling"
+        ext.channel_id         = "sora"
+        def endpoint   = findProperty("sora.signaling_endpoint") ?: signaling_endpoint
+        def channel_id = findProperty("sora.channel_id")         ?: channel_id
+        buildConfigField("String", "SIGNALING_ENDPOINT", "\"${endpoint}\"")
+        buildConfigField("String", "CHANNEL_ID",         "\"${channel_id}\"")
     }
     buildTypes {
         release {
@@ -25,10 +34,14 @@ android {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation 'com.android.support:appcompat-v7:25.4.0'
-    implementation 'com.android.support.constraint:constraint-layout:1.1.3'
+    implementation 'com.android.support:appcompat-v7:26.1.0'
+    implementation 'com.android.support.constraint:constraint-layout:1.1.0'
+    implementation 'org.nanohttpd:nanohttpd:2.3.1'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
     implementation project(':pluginlibrary')
+    implementation("com.github.shiguredo:sora-android-sdk:1.8.0@aar") {
+        transitive = true
+    }
 }
